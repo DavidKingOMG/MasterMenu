@@ -43,6 +43,9 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Include="Assets\Img\Logo.ico" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Games\ArcRaiders\" />
 	</ItemGroup>	
 
   <!-- Remove Veldrid-related packages from your old file:

@@ -44,7 +44,7 @@ namespace MamboDMA.Games.ArcRaiders
 
             _initialized = true;
         }
-        public void Attach() => VmmService.Attach(Cfg.ArcExe ?? "Pioneer.exe");
+        public void Attach() => VmmService.Attach(Cfg.ArcExe ?? "PioneerGame.exe");
         public void Dispose()
         {
             Stop();

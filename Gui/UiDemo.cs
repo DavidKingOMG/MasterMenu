@@ -118,6 +118,8 @@ public static class OverlayUI
             EndFold(openGames);
         }
         EndPanel();
+
+
         // Process / DMA
         BeginPanel("proc_panel", "Process / DMA");
         open = BeginFold("home_dma_controls", "DMA Controls", defaultOpen: true);
@@ -320,18 +322,31 @@ public static class OverlayUI
 
         ImGui.Separator();
 
+
         // Modules (from snapshot)
         open = BeginFold("mem_modules", "Modules (pick Active Base)", defaultOpen: true);
         if (open)
-        {            
+        {
             using (UiLayout.PushFieldWidth(260, 420))
                 ImGui.InputText("Filter (e.g. client.dll)", ref _modFilter, 128);
 
             ImGui.SameLine();
-            if (ImGui.Button("Refresh Modules")) VmmService.RefreshModules(); // async
-            if ((snap.Modules?.Length ?? 0) == 0) VmmService.RefreshModules();
+            if (ImGui.Button("Refresh Modules"))
+                VmmService.RefreshModules(); // async
 
-            ImGui.BeginChild("mods_child", new Vector2(0, 160), ImGuiChildFlags.None);
+            ImGui.SameLine();
+            if (ImGui.Button("Dump ALL .text"))
+                VmmService.DumpAllText();
+
+            ImGui.SameLine();
+            if (ImGui.Button("Dump ALL .data"))
+                VmmService.DumpAllData();
+
+            if ((snap.Modules?.Length ?? 0) == 0)
+                VmmService.RefreshModules();
+
+            ImGui.BeginChild("mods_child", new Vector2(0, 180), ImGuiChildFlags.None);
+
             var mods = (snap.Modules ?? Array.Empty<DmaMemory.ModuleInfo>())
                 .Where(m =>
                     string.IsNullOrWhiteSpace(_modFilter) ||
@@ -339,21 +354,66 @@ public static class OverlayUI
                     m.FullName.IndexOf(_modFilter, StringComparison.OrdinalIgnoreCase) >= 0)
                 .ToList();
 
-            for (int i = 0; i < mods.Count; i++)
+            if (mods.Count == 0)
             {
-                var m = mods[i];
-                bool sel = (i == _modSelected);
-                if (ImGui.Selectable($"{m.Name,-28}  Base=0x{m.Base:X}  Size=0x{m.Size:X}", sel))
-                    _modSelected = i;
+                ImGui.TextDisabled("(no modules match filter)");
             }
-            if (mods.Count == 0) ImGui.TextDisabled("(no modules match filter)");
-            ImGui.EndChild();
+            else
+            {
+                for (int i = 0; i < mods.Count; i++)
+                {
+                    bool sel = (i == _modSelected);
+                    var m = mods[i];
 
+                    if (ImGui.Selectable($"{m.Name,-28}  Base=0x{m.Base:X}  Size=0x{m.Size:X}", sel))
+                        _modSelected = i;
+                }
+            }
+
+            ImGui.EndChild();
+            ImGui.Separator();
+
+
+            // -------- ACTION BUTTONS FOR SELECTED MODULE --------
+
+            if (_modSelected >= 0 && _modSelected < mods.Count)
+            {
+                var m = mods[_modSelected];
+                ImGui.Text($"Selected: {m.Name}");
+
+                // Same syntax style you asked for
+                if (ImGui.Button("Dump FULL Module"))
+                {
+                    VmmService.DumpModule(m.Name);
+                }
+
+                ImGui.SameLine();
+                if (ImGui.Button("Dump .text"))
+                {
+                    VmmService.DumpModuleText(m.Name);
+                }
+
+                ImGui.SameLine();
+                if (ImGui.Button("Dump .data"))
+                {
+                    VmmService.DumpModuleData(m.Name);
+                }
+            }
+            else
+            {
+                ImGui.TextDisabled("Select a module above to dump sections.");
+            }
+
+
+            ImGui.Separator();
+
+            // Base selection buttons (unchanged)
             if (ImGui.Button("Use Main Module Base"))
             {
                 _activeBase = DmaMemory.Base;
                 _activeBaseLabel = "Main module";
             }
+
             ImGui.SameLine();
             if (ImGui.Button("Use Selected Module Base"))
             {

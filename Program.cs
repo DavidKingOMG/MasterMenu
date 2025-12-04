@@ -1,7 +1,9 @@
 ﻿using System;
 using MamboDMA.Games;
 using MamboDMA.Games.ABI;
+using MamboDMA.Games.ArcRaiders;
 using MamboDMA.Games.DayZ;
+using MamboDMA.Games.Deadlock;
 using MamboDMA.Games.Example;
 using MamboDMA.Games.Reforger;
 using MamboDMA.Services;
@@ -36,9 +38,10 @@ namespace MamboDMA
                 else if (a is "game") return UiChoice.Game;
             }
 
-            // Optional: skip prompt if no console (keeps Advanced as default)
-            return UiChoice.Game;
+            // sensible default: advanced
+            return UiChoice.Advanced;
         }
+
 
         private static (string title, Action draw) ResolveUi(UiChoice choice)
             => choice switch
@@ -51,24 +54,22 @@ namespace MamboDMA
         private static void Main(string[] args)
         {
             JobSystem.Start(workers: 3);
+
+            // Use CLI args:  --ui adv  /  --ui simple  /  --ui game
             var choice = AskUiChoice(args);
-            var (title, drawLoop) = ResolveUi(UiChoice.Game);
+            var (title, drawLoop) = ResolveUi(choice);
 
             using var win = new OverlayWindow(title, 1100, 700);
             OverlayWindowApi.Bind(win);
 
             // Register all game plugins here:
             GameRegistry.Register(new ReforgerGame());
-            GameRegistry.Register(new DayZGame()); 
+            GameRegistry.Register(new DayZGame());
             GameRegistry.Register(new ExampleGame());
             GameRegistry.Register(new ABIGame());
-            // GameRegistry.Register(new SomeOtherGame());
-            // GameRegistry.Register(new YetAnotherGame());
+            GameRegistry.Register(new ArcRaidersGame());
+            GameRegistry.Register(new DeadlockGame());
 
-            // Optional default selection (no Start() happens here):
-            // If you want no default, just skip this and the combo shows the first name.
-            //GameRegistry.Select("ExampleGame");
-            
             Image icon = Raylib.LoadImage("Assets/Img/Logo.png");
             Raylib.SetWindowIcon(icon);
             Raylib.UnloadImage(icon);
@@ -82,5 +83,6 @@ namespace MamboDMA
                 try { DayZUpdater.Stop(); } catch { }
             }
         }
+
     }
 }
