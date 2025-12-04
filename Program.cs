@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Specialized;
+using System.Drawing.Printing;
+using System.Security.Cryptography;
 using MamboDMA.Games;
 using MamboDMA.Games.ABI;
 using MamboDMA.Games.ArcRaiders;
@@ -16,31 +19,47 @@ namespace MamboDMA
 {
     internal static class Program
     {
-        private enum UiChoice { Advanced, Simple, Game }
+        private enum UiChoice { Advanced, Simple, Game}
 
         private static UiChoice AskUiChoice(string[] args)
         {
-            for (int i = 0; i < args.Length; i++)
+            Console.WriteLine("******* Welcome to MasterMenuDMA!!! ****** ");
+            Console.WriteLine("******* Welcome to MasterMenuDMA!!! ****** ");
+            Console.WriteLine("******* Welcome to MasterMenuDMA!!! ****** ");
+
+            Console.WriteLine("Choose an option");
+            Console.WriteLine("0. Advanced UI");
+            Console.WriteLine("1. Simple UI");
+            Console.WriteLine("2. Game UI");
+
+            Console.WriteLine("Select UI Mode: ");
+            string choice = Console.ReadLine();
+
+            switch (choice)
             {
-                var a = args[i].Trim().ToLowerInvariant();
-                if (a is "--ui" or "-u")
-                {
-                    if (i + 1 < args.Length)
-                    {
-                        var val = args[i + 1].Trim().ToLowerInvariant();
-                        if (val.StartsWith("adv")) return UiChoice.Advanced;
-                        if (val.StartsWith("simp")) return UiChoice.Simple;
-                        if (val.StartsWith("game")) return UiChoice.Game;
-                    }
-                }
-                else if (a is "advanced" or "adv") return UiChoice.Advanced;
-                else if (a is "simple" or "simp") return UiChoice.Simple;
-                else if (a is "game") return UiChoice.Game;
+
+                case "0":
+                    Console.WriteLine("Advanced UI selected.");
+                    return UiChoice.Advanced;
+                    break;
+                case "1":
+                    Console.WriteLine("Simple UI selected.");
+                    return UiChoice.Simple;
+                    break;
+                case "2":
+                    Console.WriteLine("Game UI Selected.");
+                    return UiChoice.Game;
+                    break;
+                default:
+                    Console.WriteLine("Invalid choice. Defaulting to Advanced UI.");
+                    return UiChoice.Simple;
+                    break;
             }
 
-            // sensible default: advanced
-            return UiChoice.Advanced;
+            
         }
+
+
 
 
         private static (string title, Action draw) ResolveUi(UiChoice choice)

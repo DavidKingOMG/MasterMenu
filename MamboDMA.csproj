@@ -42,10 +42,17 @@
 	  <None Include="Assets\Img\**\*.ico" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Remove="Games\Deadlock\DeadlockOffsets.cs" />
+	</ItemGroup>
+	<ItemGroup>
 	  <Content Include="Assets\Img\Logo.ico" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Games\ArcRaiders\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="Games\Deadlock\DeadlockConfig.cs" />
+	  <None Include="Games\Deadlock\DeadlockOffsets.cs" />
 	</ItemGroup>	
 
   <!-- Remove Veldrid-related packages from your old file:
